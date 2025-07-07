@@ -33,7 +33,7 @@ A Spring Boot application for the Student Management System, exposing RESTful AP
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-org/student-mgmt-backend.git
+   git clone [https://github.com/your-org/student-mgmt-backend.git](https://github.com/sarthakbhattarai/StudentManagemntSystemBackend.git)
    cd student-mgmt-backend
    ```
 
