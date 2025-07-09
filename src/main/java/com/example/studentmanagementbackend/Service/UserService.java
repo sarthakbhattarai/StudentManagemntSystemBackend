@@ -1,6 +1,7 @@
 package com.example.studentmanagementbackend.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.example.studentmanagementbackend.Model.User;
@@ -11,4 +12,7 @@ public interface UserService {
     List<User> getAll();
     User update(UUID id, User user);
     void delete(UUID id);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
+    Optional<User> findByUsername(String username);
 }
