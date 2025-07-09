@@ -2,10 +2,12 @@ package com.example.studentmanagementbackend.Service.Impl;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.example.studentmanagementbackend.Model.Role;
+import com.example.studentmanagementbackend.Model.Role.RoleName;
 import com.example.studentmanagementbackend.Repository.RoleRepository;
 import com.example.studentmanagementbackend.Service.RoleService;
 
@@ -43,5 +45,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public Optional<Role> findByName(RoleName name) {
+        return repository.findByName(name);
     }
 }

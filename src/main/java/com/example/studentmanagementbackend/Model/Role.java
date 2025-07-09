@@ -1,5 +1,7 @@
 package com.example.studentmanagementbackend.Model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,9 +18,12 @@ import lombok.NoArgsConstructor;
 public class Role {
 
     public enum RoleName {
-        ADMIN,
-        TEACHER,
-        STUDENT
+        ADMIN, TEACHER, STUDENT;
+
+        @JsonCreator
+        public static RoleName from(String s) {
+            return RoleName.valueOf(s.toUpperCase());
+        }
     }
 
     @Id
@@ -28,7 +33,7 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
     private RoleName name;
-    
+
     private String description;
 
     public Long getRoleId() {
@@ -46,7 +51,6 @@ public class Role {
     public void setName(RoleName name) {
         this.name = name;
     }
-
 
     public String getDescription() {
         return this.description;

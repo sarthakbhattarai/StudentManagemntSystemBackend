@@ -2,6 +2,7 @@ package com.example.studentmanagementbackend.Service.Impl;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -42,5 +43,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(UUID id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return repository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return repository.existsByEmail(email);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return repository.findByUsername(username);
     }
 }
