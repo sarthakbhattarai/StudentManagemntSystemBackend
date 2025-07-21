@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.studentmanagementbackend.DTO.Dept.DepartmentRequest;
+import com.example.studentmanagementbackend.DTO.Dept.DepartmentResponse;
 import com.example.studentmanagementbackend.Model.Department;
 import com.example.studentmanagementbackend.Service.DepartmentService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -24,8 +27,9 @@ public class DepartmentController {
     private final DepartmentService departmentService;
 
     @PostMapping
-    public ResponseEntity<Department> create(@RequestBody Department dept) {
-        return ResponseEntity.ok(departmentService.create(dept));
+    public ResponseEntity<DepartmentResponse> create(@Valid @RequestBody DepartmentRequest request) {
+        DepartmentResponse response = departmentService.create(request);
+        return ResponseEntity.status(201).body(response);
     }
 
     @GetMapping("/{id}")
@@ -33,8 +37,10 @@ public class DepartmentController {
         return ResponseEntity.ok(departmentService.getById(id));
     }
 
+    
+
     @GetMapping
-    public ResponseEntity<List<Department>> getAll() {
+    public ResponseEntity<List<DepartmentResponse>> getAll() {
         return ResponseEntity.ok(departmentService.getAll());
     }
 

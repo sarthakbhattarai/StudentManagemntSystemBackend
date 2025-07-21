@@ -12,40 +12,45 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.studentmanagementbackend.Model.Program;
+import com.example.studentmanagementbackend.DTO.Program.ProgramRequest;
+import com.example.studentmanagementbackend.DTO.Program.ProgramResponse;
 import com.example.studentmanagementbackend.Service.ProgramService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/programs")
 @RequiredArgsConstructor
 public class ProgramController {
+
     private final ProgramService programService;
 
     @PostMapping
-    public ResponseEntity<Program> create(@RequestBody Program program) {
-        return ResponseEntity.ok(programService.create(program));
+    public ResponseEntity<ProgramResponse> create(@Valid @RequestBody ProgramRequest request) {
+        System.out.println("Incoming departmentId = " + request.getDepartmentId());
+        return ResponseEntity.status(201).body(programService.create(request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Program> getById(@PathVariable Long id) {
+    public ResponseEntity<ProgramResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(programService.getById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<Program>> getAll() {
+    public ResponseEntity<List<ProgramResponse>> getAll() {
         return ResponseEntity.ok(programService.getAll());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Program> update(@PathVariable Long id, @RequestBody Program program) {
-        return ResponseEntity.ok(programService.update(id, program));
+    public ResponseEntity<ProgramResponse> update(@PathVariable Long id,
+            @Valid @RequestBody ProgramRequest request) {
+        return ResponseEntity.ok(programService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         programService.delete(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

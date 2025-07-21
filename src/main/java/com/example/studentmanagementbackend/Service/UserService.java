@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.example.studentmanagementbackend.Model.Teacher;
 import com.example.studentmanagementbackend.Model.User;
 
 public interface UserService {
@@ -15,4 +16,6 @@ public interface UserService {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     Optional<User> findByUsername(String username);
+    Teacher getByIdTeacher(UUID teacherId);
+
 }

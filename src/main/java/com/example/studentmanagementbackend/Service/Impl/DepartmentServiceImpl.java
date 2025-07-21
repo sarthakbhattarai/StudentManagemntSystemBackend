@@ -2,9 +2,12 @@ package com.example.studentmanagementbackend.Service.Impl;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.example.studentmanagementbackend.DTO.Dept.DepartmentRequest;
+import com.example.studentmanagementbackend.DTO.Dept.DepartmentResponse;
 import com.example.studentmanagementbackend.Model.Department;
 import com.example.studentmanagementbackend.Repository.DepartmentRepository;
 import com.example.studentmanagementbackend.Service.DepartmentService;
@@ -14,12 +17,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class DepartmentServiceImpl implements DepartmentService {
-    private final DepartmentRepository repository;
 
-    @Override
-    public Department create(Department dept) {
-        return repository.save(dept);
-    }
+    private final DepartmentRepository repository;
 
     @Override
     public Department getById(Long id) {
@@ -28,8 +27,21 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public List<Department> getAll() {
-        return repository.findAll();
+    public DepartmentResponse create(DepartmentRequest request) {
+        Department department = Department.builder()
+                .code(request.getCode())
+                .name(request.getName())
+                .build();
+
+        Department saved = repository.save(department);
+        return mapToResponse(saved);
+    }
+
+    @Override
+    public List<DepartmentResponse> getAll() {
+        return repository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -44,4 +56,13 @@ public class DepartmentServiceImpl implements DepartmentService {
     public void delete(Long id) {
         repository.deleteById(id);
     }
+
+    private DepartmentResponse mapToResponse(Department dept) {
+        return DepartmentResponse.builder()
+                .id(dept.getDepartmentId())
+                .code(dept.getCode())
+                .name(dept.getName())
+                .build();
+    }
+
 }

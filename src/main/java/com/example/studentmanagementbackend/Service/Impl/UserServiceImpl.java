@@ -5,9 +5,13 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.example.studentmanagementbackend.Model.Teacher;
 import com.example.studentmanagementbackend.Model.User;
+import com.example.studentmanagementbackend.Repository.TeacherRepository;
 import com.example.studentmanagementbackend.Repository.UserRepository;
 import com.example.studentmanagementbackend.Service.UserService;
 
@@ -16,7 +20,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
     private final UserRepository repository;
+
+    private final TeacherRepository teacherRepository;
 
     @Override
     public User create(User user) {
@@ -59,4 +66,11 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByUsername(String username) {
         return repository.findByUsername(username);
     }
+
+    @Override
+    public Teacher getByIdTeacher(UUID teacherId) {
+        return teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Teacher not found"));
+    }
+
 }

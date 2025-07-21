@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +22,19 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.studentmanagementbackend.DTO.Auth.LoginRequest;
 import com.example.studentmanagementbackend.DTO.Auth.LoginResponse;
 import com.example.studentmanagementbackend.DTO.Auth.RegisterRequest;
+import com.example.studentmanagementbackend.DTO.Teacher.RegisterTeacherRequest;
+import com.example.studentmanagementbackend.DTO.Teacher.TeacherResponse;
+import com.example.studentmanagementbackend.Model.Department;
+import com.example.studentmanagementbackend.Model.Role;
+import com.example.studentmanagementbackend.Model.Role.RoleName;
+import com.example.studentmanagementbackend.Model.Teacher;
 import com.example.studentmanagementbackend.Model.User;
 import com.example.studentmanagementbackend.Security.JwtTokenProvider;
-import com.example.studentmanagementbackend.Service.RoleService;
-import com.example.studentmanagementbackend.Service.UserService;
 import com.example.studentmanagementbackend.Service.AuthService.UserDetailsImpl;
+import com.example.studentmanagementbackend.Service.DepartmentService;
+import com.example.studentmanagementbackend.Service.RoleService;
+import com.example.studentmanagementbackend.Service.TeacherService;
+import com.example.studentmanagementbackend.Service.UserService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +51,10 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final TeacherService teacherService;
+
+    private final DepartmentService departmentService;
 
     @PostMapping
     public ResponseEntity<User> create(@RequestBody User user) {
@@ -109,6 +122,67 @@ public class UserController {
         return ResponseEntity
                 .created(URI.create("/api/users/" + created.getUserId()))
                 .body(created);
+    }
+
+    @PostMapping("/register/teacher")
+    public ResponseEntity<Teacher> registerTeacher(@Valid @RequestBody RegisterTeacherRequest req) {
+        if (userService.existsByUsername(req.getUsername())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Username '" + req.getUsername() + "' is already taken");
+        }
+
+        if (userService.existsByEmail(req.getEmail())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Email '" + req.getEmail() + "' is already registered");
+        }
+
+        Role teacherRole = roleService.findByName(Role.RoleName.TEACHER)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role 'TEACHER' not found"));
+
+        Department department = departmentService.getById(req.getDepartmentId());
+        if (department == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Department not found");
+        }
+
+        User user = new User();
+        user.setUsername(req.getUsername());
+        user.setEmail(req.getEmail());
+        user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
+        user.setRole(teacherRole);
+
+        LocalDateTime now = LocalDateTime.now();
+        user.setCreatedAt(now);
+        user.setUpdatedAt(now);
+
+        User savedUser = userService.create(user);
+
+        Teacher teacher = new Teacher();
+        teacher.setUser(savedUser);
+        teacher.setDepartment(department);
+        teacher.setHireDate(req.getHireDate());
+
+        Teacher savedTeacher = teacherService.create(teacher);
+
+        return ResponseEntity
+                .created(URI.create("/api/teachers/" + savedTeacher.getTeacherId()))
+                .body(savedTeacher);
+    }
+
+    @GetMapping("/allteachers")
+    public ResponseEntity<List<TeacherResponse>> getAllTeachers() {
+        List<Teacher> teachers = teacherService.getAll();
+
+        List<TeacherResponse> responses = teachers.stream().map(teacher -> {
+            TeacherResponse res = new TeacherResponse();
+            res.setTeacherId(teacher.getTeacherId());
+            res.setUsername(teacher.getUser().getUsername());
+            res.setEmail(teacher.getUser().getEmail());
+            res.setDepartmentName(teacher.getDepartment().getName());
+            res.setHireDate(teacher.getHireDate());
+            return res;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(responses);
     }
 
     @PostMapping("/login")
